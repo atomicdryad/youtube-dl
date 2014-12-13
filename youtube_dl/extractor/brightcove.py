@@ -6,20 +6,21 @@ import json
 import xml.etree.ElementTree
 
 from .common import InfoExtractor
-from ..utils import (
-    compat_urllib_parse,
-    find_xpath_attr,
-    fix_xml_ampersands,
-    compat_urlparse,
-    compat_str,
-    compat_urllib_request,
+from ..compat import (
     compat_parse_qs,
+    compat_str,
+    compat_urllib_parse,
     compat_urllib_parse_urlparse,
-
+    compat_urllib_request,
+    compat_urlparse,
+)
+from ..utils import (
     determine_ext,
     ExtractorError,
-    unsmuggle_url,
+    find_xpath_attr,
+    fix_xml_ampersands,
     unescapeHTML,
+    unsmuggle_url,
 )
 
 
@@ -111,6 +112,8 @@ class BrightcoveIE(InfoExtractor):
                             lambda m: m.group(1) + '/>', object_str)
         # Fix up some stupid XML, see https://github.com/rg3/youtube-dl/issues/1608
         object_str = object_str.replace('<--', '<!--')
+        # remove namespace to simplify extraction
+        object_str = re.sub(r'(<object[^>]*)(xmlns=".*?")', r'\1', object_str)
         object_str = fix_xml_ampersands(object_str)
 
         object_doc = xml.etree.ElementTree.fromstring(object_str.encode('utf-8'))
@@ -219,7 +222,7 @@ class BrightcoveIE(InfoExtractor):
         webpage = self._download_webpage(req, video_id)
 
         error_msg = self._html_search_regex(
-            r"<h1>We're sorry.</h1>\s*<p>(.*?)</p>", webpage,
+            r"<h1>We're sorry.</h1>([\s\n]*<p>.*?</p>)+", webpage,
             'error message', default=None)
         if error_msg is not None:
             raise ExtractorError(
@@ -263,6 +266,7 @@ class BrightcoveIE(InfoExtractor):
                 url = rend['defaultURL']
                 if not url:
                     continue
+                ext = None
                 if rend['remote']:
                     url_comp = compat_urllib_parse_urlparse(url)
                     if url_comp.path.endswith('.m3u8'):
@@ -274,7 +278,7 @@ class BrightcoveIE(InfoExtractor):
                         # akamaihd.net, but they don't use f4m manifests
                         url = url.replace('control/', '') + '?&v=3.3.0&fp=13&r=FEEFJ&g=RTSJIMBMPFPB'
                         ext = 'flv'
-                else:
+                if ext is None:
                     ext = determine_ext(url)
                 size = rend.get('size')
                 formats.append({
