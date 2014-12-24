@@ -3,8 +3,10 @@ from __future__ import unicode_literals
 from .abc import ABCIE
 from .academicearth import AcademicEarthCourseIE
 from .addanime import AddAnimeIE
+from .adobetv import AdobeTVIE
 from .adultswim import AdultSwimIE
 from .aftonbladet import AftonbladetIE
+from .aljazeera import AlJazeeraIE
 from .anitube import AnitubeIE
 from .anysex import AnySexIE
 from .aol import AolIE
@@ -87,6 +89,7 @@ from .dotsub import DotsubIE
 from .dreisat import DreiSatIE
 from .drtuber import DrTuberIE
 from .drtv import DRTVIE
+from .dvtv import DVTVIE
 from .dump import DumpIE
 from .defense import DefenseGouvFrIE
 from .discovery import DiscoveryIE
@@ -262,6 +265,7 @@ from .nbc import (
 )
 from .ndr import NDRIE
 from .ndtv import NDTVIE
+from .nerdcubed import NerdCubedFeedIE
 from .newgrounds import NewgroundsIE
 from .newstube import NewstubeIE
 from .nfb import NFBIE
@@ -316,6 +320,7 @@ from .radiofrance import RadioFranceIE
 from .rai import RaiIE
 from .rbmaradio import RBMARadioIE
 from .redtube import RedTubeIE
+from .restudy import RestudyIE
 from .reverbnation import ReverbNationIE
 from .ringtv import RingTVIE
 from .ro220 import Ro220IE
@@ -340,6 +345,7 @@ from .savefrom import SaveFromIE
 from .sbs import SBSIE
 from .scivee import SciVeeIE
 from .screencast import ScreencastIE
+from .screencastomatic import ScreencastOMaticIE
 from .screenwavemedia import CinemassacreIE, ScreenwaveMediaIE, TeamFourIE
 from .servingsys import ServingSysIE
 from .sexu import SexuIE
@@ -509,6 +515,7 @@ from .yahoo import (
     YahooIE,
     YahooSearchIE,
 )
+from .yesjapan import YesJapanIE
 from .ynet import YnetIE
 from .youjizz import YouJizzIE
 from .youku import YoukuIE
