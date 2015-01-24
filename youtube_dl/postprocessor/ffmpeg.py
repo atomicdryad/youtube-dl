@@ -490,9 +490,10 @@ class FFmpegMetadataPP(FFmpegPostProcessor):
             metadata['title'] = info['title']
         if info.get('upload_date') is not None:
             metadata['date'] = info['upload_date']
-        if info.get('uploader') is not None:
-            metadata['artist'] = info['uploader']
-        elif info.get('uploader_id') is not None:
+#        if info.get('uploader') is not None:
+#            metadata['artist'] = info['uploader']
+#        el
+        if info.get('uploader_id') is not None:
             metadata['artist'] = info['uploader_id']
         if info.get('webpage_url') is not None:
             metadata['comment'] = info['webpage_url']
