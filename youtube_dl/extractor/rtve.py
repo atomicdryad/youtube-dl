@@ -6,6 +6,7 @@ import re
 import time
 
 from .common import InfoExtractor
+from ..compat import compat_urlparse
 from ..utils import (
     struct_unpack,
     remove_end,
@@ -57,7 +58,7 @@ def _decrypt_url(png):
 class RTVEALaCartaIE(InfoExtractor):
     IE_NAME = 'rtve.es:alacarta'
     IE_DESC = 'RTVE a la carta'
-    _VALID_URL = r'http://www\.rtve\.es/alacarta/videos/[^/]+/[^/]+/(?P<id>\d+)'
+    _VALID_URL = r'http://www\.rtve\.es/(m/)?alacarta/videos/[^/]+/[^/]+/(?P<id>\d+)'
 
     _TESTS = [{
         'url': 'http://www.rtve.es/alacarta/videos/balonmano/o-swiss-cup-masculina-final-espana-suecia/2491869/',
@@ -74,7 +75,11 @@ class RTVEALaCartaIE(InfoExtractor):
             'id': '1694255',
             'ext': 'flv',
             'title': 'TODO',
-        }
+        },
+        'skip': 'The f4m manifest can\'t be used yet',
+    }, {
+        'url': 'http://www.rtve.es/m/alacarta/videos/cuentame-como-paso/cuentame-como-paso-t16-ultimo-minuto-nuestra-vida-capitulo-276/2969138/?media=tve',
+        'only_matching': True,
     }]
 
     def _real_extract(self, url):
@@ -86,6 +91,20 @@ class RTVEALaCartaIE(InfoExtractor):
         png_url = 'http://www.rtve.es/ztnr/movil/thumbnail/default/videos/%s.png' % video_id
         png = self._download_webpage(png_url, video_id, 'Downloading url information')
         video_url = _decrypt_url(png)
+        if not video_url.endswith('.f4m'):
+            auth_url = video_url.replace(
+                'resources/', 'auth/resources/'
+            ).replace('.net.rtve', '.multimedia.cdn.rtve')
+            video_path = self._download_webpage(
+                auth_url, video_id, 'Getting video url')
+            # Use mvod1.akcdn instead of flash.akamaihd.multimedia.cdn to get
+            # the right Content-Length header and the mp4 format
+            video_url = compat_urlparse.urljoin(
+                'http://mvod1.akcdn.rtve.es/', video_path)
+
+        subtitles = None
+        if info.get('sbtFile') is not None:
+            subtitles = self.extract_subtitles(video_id, info['sbtFile'])
 
         return {
             'id': video_id,
@@ -93,7 +112,16 @@ class RTVEALaCartaIE(InfoExtractor):
             'url': video_url,
             'thumbnail': info.get('image'),
             'page_url': url,
+            'subtitles': subtitles,
         }
+
+    def _get_subtitles(self, video_id, sub_file):
+        subs = self._download_json(
+            sub_file + '.json', video_id,
+            'Downloading subtitles info')['page']['items']
+        return dict(
+            (s['lang'], [{'ext': 'vtt', 'url': s['src']}])
+            for s in subs)
 
 
 class RTVELiveIE(InfoExtractor):

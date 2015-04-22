@@ -22,7 +22,7 @@ class XTubeIE(InfoExtractor):
             'id': 'kVTUy_G222_',
             'ext': 'mp4',
             'title': 'strange erotica',
-            'description': 'http://www.xtube.com an ET kind of thing',
+            'description': 'contains:an ET kind of thing',
             'uploader': 'greenshowers',
             'duration': 450,
             'age_limit': 18,
@@ -40,7 +40,7 @@ class XTubeIE(InfoExtractor):
             r'<p class="title">([^<]+)', webpage, 'title')
         video_uploader = self._html_search_regex(
             [r"var\s+contentOwnerId\s*=\s*'([^']+)",
-             r'By:\s*<a href="/community/profile\.php?user=([^"]+)'],
+             r'By:\s*<a href="/community/profile\.php\?user=([^"]+)'],
             webpage, 'uploader', fatal=False)
         video_description = self._html_search_regex(
             r'<p class="fieldsDesc">([^<]+)',
@@ -95,6 +95,7 @@ class XTubeUserIE(InfoExtractor):
         'url': 'http://www.xtube.com/community/profile.php?user=greenshowers',
         'info_dict': {
             'id': 'greenshowers',
+            'age_limit': 18,
         },
         'playlist_mincount': 155,
     }
@@ -124,6 +125,7 @@ class XTubeUserIE(InfoExtractor):
         return {
             '_type': 'playlist',
             'id': username,
+            'age_limit': 18,
             'entries': [{
                 '_type': 'url',
                 'url': eurl,
