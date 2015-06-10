@@ -145,7 +145,7 @@ def parseOpts(overrideArguments=None):
     general.add_option(
         '--list-extractors',
         action='store_true', dest='list_extractors', default=False,
-        help='List all supported extractors and the URLs they would handle')
+        help='List all supported extractors')
     general.add_option(
         '--extractor-descriptions',
         action='store_true', dest='list_extractor_descriptions', default=False,
@@ -331,10 +331,6 @@ def parseOpts(overrideArguments=None):
         '--prefer-free-formats',
         action='store_true', dest='prefer_free_formats', default=False,
         help='Prefer free video formats unless a specific one is requested')
-    video_format.add_option(
-        '--max-quality',
-        action='store', dest='format_limit', metavar='FORMAT',
-        help='Highest quality format to download')
     video_format.add_option(
         '-F', '--list-formats',
         action='store_true', dest='listformats',
@@ -541,7 +537,7 @@ def parseOpts(overrideArguments=None):
     verbosity.add_option(
         '--dump-pages', '--dump-intermediate-pages',
         action='store_true', dest='dump_intermediate_pages', default=False,
-        help='Print downloaded pages to debug problems (very verbose)')
+        help='Print downloaded pages encoded using base64 to debug problems (very verbose)')
     verbosity.add_option(
         '--write-pages',
         action='store_true', dest='write_pages', default=False,
@@ -641,7 +637,7 @@ def parseOpts(overrideArguments=None):
     filesystem.add_option(
         '--write-annotations',
         action='store_true', dest='writeannotations', default=False,
-        help='Write video annotations to a .annotation file')
+        help='Write video annotations to a .annotations.xml file')
     filesystem.add_option(
         '--load-info',
         dest='load_info_filename', metavar='FILE',
@@ -702,7 +698,7 @@ def parseOpts(overrideArguments=None):
     postproc.add_option(
         '--embed-subs',
         action='store_true', dest='embedsubtitles', default=False,
-        help='Embed subtitles in the video (only for mp4 videos)')
+        help='Embed subtitles in the video (only for mkv and mp4 videos)')
     postproc.add_option(
         '--embed-thumbnail',
         action='store_true', dest='embedthumbnail', default=False,
@@ -717,7 +713,7 @@ def parseOpts(overrideArguments=None):
         help='Parse additional metadata like song title / artist from the video title. '
              'The format syntax is the same as --output, '
              'the parsed parameters replace existing values. '
-             'Additional templates: %(album), %(artist). '
+             'Additional templates: %(album)s, %(artist)s. '
              'Example: --metadata-from-title "%(artist)s - %(title)s" matches a title like '
              '"Coldplay - Paradise"')
     postproc.add_option(

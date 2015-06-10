@@ -10,6 +10,7 @@
  - **56.com**
  - **5min**
  - **8tracks**
+ - **91porn**
  - **9gag**
  - **abc.net.au**
  - **Abc7News**
@@ -26,8 +27,7 @@
  - **anitube.se**
  - **AnySex**
  - **Aparat**
- - **AppleDailyAnimationNews**
- - **AppleDailyRealtimeNews**
+ - **AppleDaily**
  - **AppleTrailers**
  - **archive.org**: archive.org videos
  - **ARD**
@@ -44,6 +44,7 @@
  - **audiomack**
  - **audiomack:album**
  - **Azubu**
+ - **BaiduVideo**
  - **bambuser**
  - **bambuser:channel**
  - **Bandcamp**
@@ -63,6 +64,8 @@
  - **BR**: Bayerischer Rundfunk Mediathek
  - **Break**
  - **Brightcove**
+ - **bt:article**: Bergens Tidende Articles
+ - **bt:vestlendingen**: Bergens Tidende - Vestlendingen
  - **BuzzFeed**
  - **BYUtv**
  - **Camdemy**
@@ -139,6 +142,7 @@
  - **Eporner**
  - **EroProfile**
  - **Escapist**
+ - **ESPN** (Currently broken)
  - **EveryonesMixtape**
  - **exfm**: ex.fm
  - **ExpoTV**
@@ -148,13 +152,13 @@
  - **fc2**
  - **fernsehkritik.tv**
  - **fernsehkritik.tv:postecke**
- - **Firedrive**
  - **Firstpost**
  - **Flickr**
  - **Folketinget**: Folketinget (ft.dk; Danish parliament)
  - **FootyRoom**
  - **Foxgay**
  - **FoxNews**
+ - **FoxSports**
  - **france2.fr:generation-quoi**
  - **FranceCulture**
  - **FranceInter**
@@ -174,6 +178,7 @@
  - **Gazeta**
  - **GDCVault**
  - **generic**: Generic downloader that works on some sites
+ - **Gfycat**
  - **GiantBomb**
  - **Giga**
  - **Glide**: Glide mobile video messages (glide.me)
@@ -181,9 +186,8 @@
  - **GodTube**
  - **GoldenMoustache**
  - **Golem**
- - **GorillaVid**: GorillaVid.in, daclips.in, movpod.in and fastvideo.in
+ - **GorillaVid**: GorillaVid.in, daclips.in, movpod.in, fastvideo.in and realvid.net
  - **Goshgay**
- - **Grooveshark**
  - **Groupon**
  - **Hark**
  - **HearThisAt**
@@ -225,6 +229,7 @@
  - **KanalPlay**: Kanal 5/9/11 Play
  - **Kankan**
  - **Karaoketv**
+ - **KarriereVideos**
  - **keek**
  - **KeezMovies**
  - **KhanAcademy**
@@ -238,6 +243,7 @@
  - **LetvPlaylist**
  - **LetvTv**
  - **Libsyn**
+ - **life:embed**
  - **lifenews**: LIFE | NEWS
  - **LiveLeak**
  - **livestream**
@@ -252,6 +258,7 @@
  - **Malemotion**
  - **MDR**
  - **media.ccc.de**
+ - **MegaVideoz**
  - **metacafe**
  - **Metacritic**
  - **Mgoon**
@@ -285,6 +292,7 @@
  - **MySpass**
  - **myvideo**
  - **MyVidster**
+ - **N-JOY**
  - **n-tv.de**
  - **NationalGeographic**
  - **Naver**
@@ -312,8 +320,10 @@
  - **Noco**
  - **Normalboots**
  - **NosVideo**
+ - **Nova**: TN.cz, Prásk.tv, Nova.cz, Novaplus.cz, FANDA.tv, Krásná.cz and Doma.cz
  - **novamov**: NovaMov
  - **Nowness**
+ - **NowTV**
  - **nowvideo**: NowVideo
  - **npo.nl**
  - **npo.nl:live**
@@ -325,11 +335,13 @@
  - **ntv.ru**
  - **Nuvid**
  - **NYTimes**
+ - **NYTimesArticle**
  - **ocw.mit.edu**
  - **Odnoklassniki**
  - **OktoberfestTV**
  - **on.aol.com**
  - **Ooyala**
+ - **OoyalaExternal**
  - **OpenFilm**
  - **orf:fm4**: radio FM4
  - **orf:iptv**: iptv.ORF.at
@@ -338,6 +350,7 @@
  - **parliamentlive.tv**: UK parliament videos
  - **Patreon**
  - **PBS**
+ - **PhilharmonieDeParis**: Philharmonie de Paris
  - **Phoenix**
  - **Photobucket**
  - **Pladform**
@@ -360,9 +373,10 @@
  - **prosiebensat1**: ProSiebenSat.1 Digital
  - **Puls4**
  - **Pyvideo**
- - **QQMusic**
- - **QQMusicAlbum**
- - **QQMusicSinger**
+ - **qqmusic**
+ - **qqmusic:album**
+ - **qqmusic:singer**
+ - **qqmusic:toplist**
  - **QuickVid**
  - **R7**
  - **radio.de**
@@ -381,7 +395,6 @@
  - **Rte**
  - **rtl.nl**: rtl.nl and rtlxl.nl
  - **RTL2**
- - **RTLnow**
  - **RTP**
  - **RTS**: RTS.ch
  - **rtve.es:alacarta**: RTVE a la carta
@@ -405,6 +418,7 @@
  - **Screencast**
  - **ScreencastOMatic**
  - **ScreenwaveMedia**
+ - **SenateISVP**
  - **ServingSys**
  - **Sexu**
  - **SexyKarma**: Sexy Karma and Watch Indian Porn
@@ -418,8 +432,9 @@
  - **smotri:community**: Smotri.com community videos
  - **smotri:user**: Smotri.com user videos
  - **Snotr**
- - **Sockshare**
  - **Sohu**
+ - **soompi**
+ - **soompi:show**
  - **soundcloud**
  - **soundcloud:playlist**
  - **soundcloud:set**
@@ -427,7 +442,10 @@
  - **soundgasm**
  - **soundgasm:profile**
  - **southpark.cc.com**
+ - **southpark.cc.com:español**
  - **southpark.de**
+ - **southpark.nl**
+ - **southparkstudios.dk**
  - **Space**
  - **SpankBang**
  - **Spankwire**
@@ -437,6 +455,7 @@
  - **Spike**
  - **Sport5**
  - **SportBox**
+ - **SportBoxEmbed**
  - **SportDeutschland**
  - **Srf**
  - **SRMediathek**: Saarländischer Rundfunk
@@ -447,6 +466,7 @@
  - **StreamCZ**
  - **StreetVoice**
  - **SunPorno**
+ - **SVT**
  - **SVTPlay**: SVT Play and Öppet arkiv
  - **SWRMediathek**
  - **Syfy**
@@ -461,7 +481,7 @@
  - **TeamFour**
  - **TechTalks**
  - **techtv.mit.edu**
- - **TED**
+ - **ted**
  - **tegenlicht.vpro.nl**
  - **TeleBruxelles**
  - **telecinco.es**
@@ -480,6 +500,7 @@
  - **tlc.com**
  - **tlc.de**
  - **TMZ**
+ - **TMZArticle**
  - **TNAFlix**
  - **tou.tv**
  - **Toypics**: Toypics user profile
@@ -488,12 +509,15 @@
  - **Trilulilu**
  - **TruTube**
  - **Tube8**
+ - **TubiTv**
  - **Tudou**
  - **Tumblr**
  - **TuneIn**
  - **Turbo**
  - **Tutv**
  - **tv.dfb.de**
+ - **TV2**
+ - **TV2Article**
  - **TV4**: tv4.se and tv4play.se
  - **tvigle**: Интернет-телевидение Tvigle.ru
  - **tvp.pl**
@@ -523,7 +547,7 @@
  - **Vessel**
  - **Vesti**: Вести.Ru
  - **Vevo**
- - **VGTV**
+ - **VGTV**: VGTV and BTTV
  - **vh1.com**
  - **Vice**
  - **Viddler**
@@ -543,6 +567,7 @@
  - **vier:videos**
  - **Viewster**
  - **viki**
+ - **viki:channel**
  - **vimeo**
  - **vimeo:album**
  - **vimeo:channel**
@@ -551,12 +576,13 @@
  - **vimeo:review**: Review pages on vimeo
  - **vimeo:user**
  - **vimeo:watchlater**: Vimeo watch later list, "vimeowatchlater" keyword (requires authentication)
- - **Vimple**: Vimple.ru
+ - **Vimple**: Vimple - one-click video hosting
  - **Vine**
  - **vine:user**
  - **vk.com**
  - **vk.com:user-videos**: vk.com:All of a user's videos
  - **Vodlocker**
+ - **VoiceRepublic**
  - **Vporn**
  - **VRT**
  - **vube**: Vube.com
@@ -581,6 +607,7 @@
  - **XHamster**
  - **XMinus**
  - **XNXX**
+ - **Xstream**
  - **XTube**
  - **XTubeUser**: XTube user profile
  - **Xuite**

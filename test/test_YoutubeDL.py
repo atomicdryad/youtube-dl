@@ -12,6 +12,7 @@ import copy
 
 from test.helper import FakeYDL, assertRegexpMatches
 from youtube_dl import YoutubeDL
+from youtube_dl.compat import compat_str
 from youtube_dl.extractor import YoutubeIE
 from youtube_dl.postprocessor.common import PostProcessor
 from youtube_dl.utils import match_filter_func
@@ -100,39 +101,6 @@ class TestFormatSelection(unittest.TestCase):
         ydl.process_ie_result(info_dict)
         downloaded = ydl.downloaded_info_dicts[0]
         self.assertEqual(downloaded['ext'], 'flv')
-
-    def test_format_limit(self):
-        formats = [
-            {'format_id': 'meh', 'url': 'http://example.com/meh', 'preference': 1},
-            {'format_id': 'good', 'url': 'http://example.com/good', 'preference': 2},
-            {'format_id': 'great', 'url': 'http://example.com/great', 'preference': 3},
-            {'format_id': 'excellent', 'url': 'http://example.com/exc', 'preference': 4},
-        ]
-        info_dict = _make_result(formats)
-
-        ydl = YDL()
-        ydl.process_ie_result(info_dict)
-        downloaded = ydl.downloaded_info_dicts[0]
-        self.assertEqual(downloaded['format_id'], 'excellent')
-
-        ydl = YDL({'format_limit': 'good'})
-        assert ydl.params['format_limit'] == 'good'
-        ydl.process_ie_result(info_dict.copy())
-        downloaded = ydl.downloaded_info_dicts[0]
-        self.assertEqual(downloaded['format_id'], 'good')
-
-        ydl = YDL({'format_limit': 'great', 'format': 'all'})
-        ydl.process_ie_result(info_dict.copy())
-        self.assertEqual(ydl.downloaded_info_dicts[0]['format_id'], 'meh')
-        self.assertEqual(ydl.downloaded_info_dicts[1]['format_id'], 'good')
-        self.assertEqual(ydl.downloaded_info_dicts[2]['format_id'], 'great')
-        self.assertTrue('3' in ydl.msgs[0])
-
-        ydl = YDL()
-        ydl.params['format_limit'] = 'excellent'
-        ydl.process_ie_result(info_dict.copy())
-        downloaded = ydl.downloaded_info_dicts[0]
-        self.assertEqual(downloaded['format_id'], 'excellent')
 
     def test_format_selection(self):
         formats = [
@@ -270,7 +238,7 @@ class TestFormatSelection(unittest.TestCase):
             f2['url'] = 'url:' + f2id
 
             info_dict = _make_result([f1, f2], extractor='youtube')
-            ydl = YDL()
+            ydl = YDL({'format': 'best/bestvideo'})
             yie = YoutubeIE(ydl)
             yie._sort_formats(info_dict['formats'])
             ydl.process_ie_result(info_dict)
@@ -278,7 +246,7 @@ class TestFormatSelection(unittest.TestCase):
             self.assertEqual(downloaded['format_id'], f1id)
 
             info_dict = _make_result([f2, f1], extractor='youtube')
-            ydl = YDL()
+            ydl = YDL({'format': 'best/bestvideo'})
             yie = YoutubeIE(ydl)
             yie._sort_formats(info_dict['formats'])
             ydl.process_ie_result(info_dict)
@@ -539,6 +507,51 @@ class TestYoutubeDL(unittest.TestCase):
         f = match_filter_func('filesize > 5KiB')
         res = get_videos(f)
         self.assertEqual(res, ['1'])
+
+    def test_playlist_items_selection(self):
+        entries = [{
+            'id': compat_str(i),
+            'title': compat_str(i),
+            'url': TEST_URL,
+        } for i in range(1, 5)]
+        playlist = {
+            '_type': 'playlist',
+            'id': 'test',
+            'entries': entries,
+            'extractor': 'test:playlist',
+            'extractor_key': 'test:playlist',
+            'webpage_url': 'http://example.com',
+        }
+
+        def get_ids(params):
+            ydl = YDL(params)
+            # make a copy because the dictionary can be modified
+            ydl.process_ie_result(playlist.copy())
+            return [int(v['id']) for v in ydl.downloaded_info_dicts]
+
+        result = get_ids({})
+        self.assertEqual(result, [1, 2, 3, 4])
+
+        result = get_ids({'playlistend': 10})
+        self.assertEqual(result, [1, 2, 3, 4])
+
+        result = get_ids({'playlistend': 2})
+        self.assertEqual(result, [1, 2])
+
+        result = get_ids({'playliststart': 10})
+        self.assertEqual(result, [])
+
+        result = get_ids({'playliststart': 2})
+        self.assertEqual(result, [2, 3, 4])
+
+        result = get_ids({'playlist_items': '2-4'})
+        self.assertEqual(result, [2, 3, 4])
+
+        result = get_ids({'playlist_items': '2,4'})
+        self.assertEqual(result, [2, 4])
+
+        result = get_ids({'playlist_items': '10'})
+        self.assertEqual(result, [])
 
 
 if __name__ == '__main__':

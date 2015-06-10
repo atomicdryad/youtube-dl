@@ -49,6 +49,7 @@ from .utils import (
     ExtractorError,
     format_bytes,
     formatSeconds,
+    HEADRequest,
     locked_file,
     make_HTTPS_handler,
     MaxDownloadsReached,
@@ -64,7 +65,6 @@ from .utils import (
     sanitize_path,
     std_headers,
     subtitles_filename,
-    takewhile_inclusive,
     UnavailableVideoError,
     url_basename,
     version_tuple,
@@ -72,6 +72,7 @@ from .utils import (
     write_string,
     YoutubeDLHandler,
     prepend_extension,
+    replace_extension,
     args_to_str,
     age_restricted,
 )
@@ -135,7 +136,6 @@ class YoutubeDL(object):
                        (or video) as a single JSON line.
     simulate:          Do not download the video files.
     format:            Video format code. See options.py for more information.
-    format_limit:      Highest quality format to try.
     outtmpl:           Template for output names.
     restrictfilenames: Do not allow "&" and spaces in file names
     ignoreerrors:      Do not stop on download errors.
@@ -261,7 +261,6 @@ class YoutubeDL(object):
     The following options are used by the post processors:
     prefer_ffmpeg:     If True, use ffmpeg instead of avconv if both are available,
                        otherwise prefer avconv.
-    exec_cmd:          Arbitrary command to run after downloading
     """
 
     params = None
@@ -761,7 +760,9 @@ class YoutubeDL(object):
             if isinstance(ie_entries, list):
                 n_all_entries = len(ie_entries)
                 if playlistitems:
-                    entries = [ie_entries[i - 1] for i in playlistitems]
+                    entries = [
+                        ie_entries[i - 1] for i in playlistitems
+                        if -n_all_entries <= i - 1 < n_all_entries]
                 else:
                     entries = ie_entries[playliststart:playlistend]
                 n_entries = len(entries)
@@ -916,15 +917,17 @@ class YoutubeDL(object):
         if not available_formats:
             return None
 
-        if format_spec == 'best' or format_spec is None:
-            return available_formats[-1]
-        elif format_spec == 'worst':
+        if format_spec in ['best', 'worst', None]:
+            format_idx = 0 if format_spec == 'worst' else -1
             audiovideo_formats = [
                 f for f in available_formats
                 if f.get('vcodec') != 'none' and f.get('acodec') != 'none']
             if audiovideo_formats:
-                return audiovideo_formats[0]
-            return available_formats[0]
+                return audiovideo_formats[format_idx]
+            # for audio only (soundcloud) or video only (imgur) urls, select the best/worst audio format
+            elif (all(f.get('acodec') != 'none' for f in available_formats) or
+                  all(f.get('vcodec') != 'none' for f in available_formats)):
+                return available_formats[format_idx]
         elif format_spec == 'bestaudio':
             audio_formats = [
                 f for f in available_formats
@@ -1013,13 +1016,13 @@ class YoutubeDL(object):
             info_dict['display_id'] = info_dict['id']
 
         if info_dict.get('upload_date') is None and info_dict.get('timestamp') is not None:
-            # Working around negative timestamps in Windows
-            # (see http://bugs.python.org/issue1646728)
-            if info_dict['timestamp'] < 0 and os.name == 'nt':
-                info_dict['timestamp'] = 0
-            upload_date = datetime.datetime.utcfromtimestamp(
-                info_dict['timestamp'])
-            info_dict['upload_date'] = upload_date.strftime('%Y%m%d')
+            # Working around out-of-range timestamp values (e.g. negative ones on Windows,
+            # see http://bugs.python.org/issue1646728)
+            try:
+                upload_date = datetime.datetime.utcfromtimestamp(info_dict['timestamp'])
+                info_dict['upload_date'] = upload_date.strftime('%Y%m%d')
+            except (ValueError, OverflowError, OSError):
+                pass
 
         if self.params.get('listsubtitles', False):
             if 'automatic_captions' in info_dict:
@@ -1046,6 +1049,8 @@ class YoutubeDL(object):
         if not formats:
             raise ExtractorError('No video formats found!')
 
+        formats_dict = {}
+
         # We check that all the formats have the format and format_id fields
         for i, format in enumerate(formats):
             if 'url' not in format:
@@ -1053,6 +1058,18 @@ class YoutubeDL(object):
 
             if format.get('format_id') is None:
                 format['format_id'] = compat_str(i)
+            format_id = format['format_id']
+            if format_id not in formats_dict:
+                formats_dict[format_id] = []
+            formats_dict[format_id].append(format)
+
+        # Make sure all formats have unique format_id
+        for format_id, ambiguous_formats in formats_dict.items():
+            if len(ambiguous_formats) > 1:
+                for i, format in enumerate(ambiguous_formats):
+                    format['format_id'] = '%s-%d' % (format_id, i)
+
+        for i, format in enumerate(formats):
             if format.get('format') is None:
                 format['format'] = '{id} - {res}{note}'.format(
                     id=format['format_id'],
@@ -1067,12 +1084,6 @@ class YoutubeDL(object):
             full_format_info = info_dict.copy()
             full_format_info.update(format)
             format['http_headers'] = self._calc_headers(full_format_info)
-
-        format_limit = self.params.get('format_limit', None)
-        if format_limit:
-            formats = list(takewhile_inclusive(
-                lambda f: f['format_id'] != format_limit, formats
-            ))
 
         # TODO Central sorting goes here
 
@@ -1092,8 +1103,11 @@ class YoutubeDL(object):
         req_format = self.params.get('format')
         if req_format is None:
             req_format_list = []
-            if info_dict['extractor'] in ['youtube', 'ted'] and FFmpegMergerPP(self).available:
-                req_format_list.append('bestvideo+bestaudio')
+            if (self.params.get('outtmpl', DEFAULT_OUTTMPL) != '-' and
+                    info_dict['extractor'] in ['youtube', 'ted']):
+                merger = FFmpegMergerPP(self)
+                if merger.available and merger.can_merge():
+                    req_format_list.append('bestvideo+bestaudio')
             req_format_list.append('best')
             req_format = '/'.join(req_format_list)
         formats_to_download = []
@@ -1277,7 +1291,7 @@ class YoutubeDL(object):
             return
 
         if self.params.get('writedescription', False):
-            descfn = filename + '.description'
+            descfn = replace_extension(filename, 'description', info_dict.get('ext'))
             if self.params.get('nooverwrites', False) and os.path.exists(encodeFilename(descfn)):
                 self.to_screen('[info] Video description is already present')
             elif info_dict.get('description') is None:
@@ -1292,7 +1306,7 @@ class YoutubeDL(object):
                     return
 
         if self.params.get('writeannotations', False):
-            annofn = filename + '.annotations.xml'
+            annofn = replace_extension(filename, 'annotations.xml', info_dict.get('ext'))
             if self.params.get('nooverwrites', False) and os.path.exists(encodeFilename(annofn)):
                 self.to_screen('[info] Video annotations are already present')
             else:
@@ -1339,13 +1353,13 @@ class YoutubeDL(object):
                     return
 
         if self.params.get('writeinfojson', False):
-            infofn = os.path.splitext(filename)[0] + '.info.json'
+            infofn = replace_extension(filename, 'info.json', info_dict.get('ext'))
             if self.params.get('nooverwrites', False) and os.path.exists(encodeFilename(infofn)):
                 self.to_screen('[info] Video description metadata is already present')
             else:
                 self.to_screen('[info] Writing video description metadata as JSON to: ' + infofn)
                 try:
-                    write_json_file(info_dict, infofn)
+                    write_json_file(self.filter_requested_info(info_dict), infofn)
                 except (OSError, IOError):
                     self.report_error('Cannot write metadata to JSON file ' + infofn)
                     return
@@ -1370,7 +1384,7 @@ class YoutubeDL(object):
                         postprocessors = []
                         self.report_warning('You have requested multiple '
                                             'formats but ffmpeg or avconv are not installed.'
-                                            ' The formats won\'t be merged')
+                                            ' The formats won\'t be merged.')
                     else:
                         postprocessors = [merger]
 
@@ -1389,11 +1403,18 @@ class YoutubeDL(object):
                         # TODO: Check acodec/vcodec
                         return False
 
+                    filename_real_ext = os.path.splitext(filename)[1][1:]
+                    filename_wo_ext = (
+                        os.path.splitext(filename)[0]
+                        if filename_real_ext == info_dict['ext']
+                        else filename)
                     requested_formats = info_dict['requested_formats']
                     if self.params.get('merge_output_format') is None and not compatible_formats(requested_formats):
-                        filename = os.path.splitext(filename)[0] + '.mkv'
-                        self.report_warning('You have requested formats uncompatible for merge. '
-                                            'The formats will be merged into mkv')
+                        info_dict['ext'] = 'mkv'
+                        self.report_warning(
+                            'Requested formats are incompatible for merge and will be merged into mkv.')
+                    # Ensure filename always has a correct extension for successful merge
+                    filename = '%s.%s' % (filename_wo_ext, info_dict['ext'])
                     if os.path.exists(encodeFilename(filename)):
                         self.to_screen(
                             '[download] %s has already been downloaded and '
@@ -1403,7 +1424,7 @@ class YoutubeDL(object):
                             new_info = dict(info_dict)
                             new_info.update(f)
                             fname = self.prepare_filename(new_info)
-                            fname = prepend_extension(fname, 'f%s' % f['format_id'])
+                            fname = prepend_extension(fname, 'f%s' % f['format_id'], new_info['ext'])
                             downloaded.append(fname)
                             partial_success = dl(fname, new_info)
                             success = success and partial_success
@@ -1495,7 +1516,7 @@ class YoutubeDL(object):
                 [info_filename], mode='r',
                 openhook=fileinput.hook_encoded('utf-8'))) as f:
             # FileInput doesn't have a read method, we can't call json.load
-            info = json.loads('\n'.join(f))
+            info = self.filter_requested_info(json.loads('\n'.join(f)))
         try:
             self.process_ie_result(info, download=True)
         except DownloadError:
@@ -1507,6 +1528,12 @@ class YoutubeDL(object):
                 raise
         return self._download_retcode
 
+    @staticmethod
+    def filter_requested_info(info_dict):
+        return dict(
+            (k, v) for k, v in info_dict.items()
+            if k not in ['requested_formats', 'requested_subtitles'])
+
     def post_process(self, filename, ie_info):
         """Run all the postprocessors on the given file."""
         info = dict(ie_info)
@@ -1516,7 +1543,7 @@ class YoutubeDL(object):
             pps_chain.extend(ie_info['__postprocessors'])
         pps_chain.extend(self._pps)
         for pp in pps_chain:
-            old_filename = info['filepath']
+            files_to_delete = []
             try:
                 files_to_delete, info = pp.run(info)
             except PostProcessingError as e:
@@ -1695,7 +1722,8 @@ class YoutubeDL(object):
             if req_is_string:
                 req = url_escaped
             else:
-                req = compat_urllib_request.Request(
+                req_type = HEADRequest if req.get_method() == 'HEAD' else compat_urllib_request.Request
+                req = req_type(
                     url_escaped, data=req.data, headers=req.headers,
                     origin_req_host=req.origin_req_host, unverifiable=req.unverifiable)
 
@@ -1841,7 +1869,7 @@ class YoutubeDL(object):
             thumb_ext = determine_ext(t['url'], 'jpg')
             suffix = '_%s' % t['id'] if len(thumbnails) > 1 else ''
             thumb_display_id = '%s ' % t['id'] if len(thumbnails) > 1 else ''
-            thumb_filename = os.path.splitext(filename)[0] + suffix + '.' + thumb_ext
+            t['filename'] = thumb_filename = os.path.splitext(filename)[0] + suffix + '.' + thumb_ext
 
             if self.params.get('nooverwrites', False) and os.path.exists(encodeFilename(thumb_filename)):
                 self.to_screen('[%s] %s: Thumbnail %sis already present' %

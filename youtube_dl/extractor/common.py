@@ -47,7 +47,7 @@ class InfoExtractor(object):
     information possibly downloading the video to the file system, among
     other possible outcomes.
 
-    The type field determines the the type of the result.
+    The type field determines the type of the result.
     By far the most common value (and the default if _type is missing) is
     "video", which indicates a single video.
 
@@ -111,11 +111,8 @@ class InfoExtractor(object):
                                   (quality takes higher priority)
                                  -1 for default (order by other properties),
                                  -2 or smaller for less than default.
-                    * http_method  HTTP method to use for the download.
                     * http_headers  A dictionary of additional HTTP headers
                                  to add to the request.
-                    * http_post_data  Additional data to send with a POST
-                                 request.
                     * stretched_ratio  If given and not 1, indicates that the
                                  video's pixels are not square.
                                  width : height ratio as float.
@@ -572,7 +569,7 @@ class InfoExtractor(object):
 
     def _get_login_info(self):
         """
-        Get the the login info as (username, password)
+        Get the login info as (username, password)
         It will look in the netrc file using the _NETRC_MACHINE value
         If there's no info available, return (None, None)
         """
@@ -767,7 +764,7 @@ class InfoExtractor(object):
                 f.get('fps') if f.get('fps') is not None else -1,
                 f.get('filesize_approx') if f.get('filesize_approx') is not None else -1,
                 f.get('source_preference') if f.get('source_preference') is not None else -1,
-                f.get('format_id'),
+                f.get('format_id') if f.get('format_id') is not None else '',
             )
         formats.sort(key=_formats_key)
 
@@ -789,8 +786,8 @@ class InfoExtractor(object):
             return True
         except ExtractorError as e:
             if isinstance(e.cause, compat_HTTPError):
-                self.report_warning(
-                    '%s URL is invalid, skipping' % item, video_id)
+                self.to_screen(
+                    '%s: %s URL is invalid, skipping' % (video_id, item))
                 return False
             raise
 
@@ -849,7 +846,7 @@ class InfoExtractor(object):
 
     def _extract_m3u8_formats(self, m3u8_url, video_id, ext=None,
                               entry_protocol='m3u8', preference=None,
-                              m3u8_id=None):
+                              m3u8_id=None, note=None, errnote=None):
 
         formats = [{
             'format_id': '-'.join(filter(None, [m3u8_id, 'meta'])),
@@ -868,8 +865,8 @@ class InfoExtractor(object):
 
         m3u8_doc = self._download_webpage(
             m3u8_url, video_id,
-            note='Downloading m3u8 information',
-            errnote='Failed to download m3u8 information')
+            note=note or 'Downloading m3u8 information',
+            errnote=errnote or 'Failed to download m3u8 information')
         last_info = None
         last_media = None
         kv_rex = re.compile(
@@ -899,7 +896,7 @@ class InfoExtractor(object):
                 format_id = []
                 if m3u8_id:
                     format_id.append(m3u8_id)
-                last_media_name = last_media.get('NAME') if last_media else None
+                last_media_name = last_media.get('NAME') if last_media and last_media.get('TYPE') != 'SUBTITLES' else None
                 format_id.append(last_media_name if last_media_name else '%d' % (tbr if tbr else len(formats)))
                 f = {
                     'format_id': '-'.join(format_id),
@@ -1074,9 +1071,6 @@ class InfoExtractor(object):
 
     def _get_automatic_captions(self, *args, **kwargs):
         raise NotImplementedError("This method must be implemented by subclasses")
-
-    def _subtitles_timecode(self, seconds):
-        return '%02d:%02d:%02d.%03d' % (seconds / 3600, (seconds % 3600) / 60, seconds % 60, (seconds % 1) * 1000)
 
 
 class SearchInfoExtractor(InfoExtractor):
