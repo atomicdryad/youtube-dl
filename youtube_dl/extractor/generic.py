@@ -1534,6 +1534,11 @@ class GenericIE(InfoExtractor):
                     'url': new_url,
                 }
         if not found:
+            # last ditch effort before we give up: try all the things
+            matches = re.findall(
+                r'<(?:iframe|embed)[^>]+?src=(["\'])(?P<url>(?:https?:)?//.+?)\1', webpage)
+            if matches:
+                return _playlist_from_matches(matches, lambda m: smuggle_url(m[1], {'Referer': url}) )
             raise UnsupportedError(url)
 
         entries = []
