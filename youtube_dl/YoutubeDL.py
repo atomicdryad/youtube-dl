@@ -22,6 +22,7 @@ import socket
 import sys
 import time
 import traceback
+from pprint import pprint
 
 if os.name == 'nt':
     import ctypes
@@ -1720,6 +1721,11 @@ class YoutubeDL(object):
                 req = req_type(
                     url_escaped, data=req.data, headers=req.headers,
                     origin_req_host=req.origin_req_host, unverifiable=req.unverifiable)
+
+        method = 'GET' if req_is_string else req.get_method()
+        extra = '' if req_is_string else '' if req.data == None else ' --post-data='+str(req.data)
+        referer = '' if req_is_string else '' if req.headers.get('Referer',None) == None else ' --referer='+req.headers.get('Referer',None)
+        self.to_screen('  >> %s %s%s%s' % (method, url, extra, referer))
 
         return self._opener.open(req, timeout=self._socket_timeout)
 
