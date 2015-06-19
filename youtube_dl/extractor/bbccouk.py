@@ -13,11 +13,7 @@ from ..compat import compat_HTTPError
 class BBCCoUkIE(InfoExtractor):
     IE_NAME = 'bbc.co.uk'
     IE_DESC = 'BBC iPlayer'
-#<<<<<<< HEAD
-#    _VALID_URL = r'https?://(?:www\.)?bbc\.co\.uk/(?:programmes|iplayer/episode|iplayer/playlist)/(?P<id>[\da-z]{8})'
-#=======
     _VALID_URL = r'https?://(?:www\.)?bbc\.co\.uk/(?:(?:(?:programmes|iplayer(?:/[^/]+)?/(?:episode|playlist))/)|music/clips[/#])(?P<id>[\da-z]{8})'
-#>>>>>>> origin/master
 
     _TESTS = [
         {
