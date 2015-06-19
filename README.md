@@ -52,7 +52,7 @@ which means you can modify it, redistribute it or use it however you like.
     -i, --ignore-errors              Continue on download errors, for example to skip unavailable videos in a playlist
     --abort-on-error                 Abort downloading of further videos (in the playlist or the command line) if an error occurs
     --dump-user-agent                Display the current browser identification
-    --list-extractors                List all supported extractors and the URLs they would handle
+    --list-extractors                List all supported extractors
     --extractor-descriptions         Output descriptions of all supported extractors
     --default-search PREFIX          Use this prefix for unqualified URLs. For example "gvsearch2:" downloads two videos from google videos for youtube-dl "large apple". Use the value "auto" to let youtube-dl guess ("auto_warning" to
                                      emit a warning when guessing). "error" just throws an error. The default value "fixup_error" repairs broken URLs, but emits an error if this is not possible instead of searching.
@@ -208,16 +208,12 @@ which means you can modify it, redistribute it or use it however you like.
     --embed-subs                     Embed subtitles in the video (only for mkv and mp4 videos)
     --embed-thumbnail                Embed thumbnail in the audio as cover art
     --add-metadata                   Write metadata to the video file
-<<<<<<< HEAD
-    --metadata-from-title FORMAT     Parse additional metadata like song title / artist from the video title. The format syntax is the same as --output, the parsed parameters replace existing values. Additional templates: %(album),
-                                     %(artist). Example: --metadata-from-title "%(artist)s - %(title)s" matches a title like "Coldplay - Paradise"
-=======
     --metadata-from-title FORMAT     Parse additional metadata like song title / artist from the video title. The format syntax is the same as --output, the parsed
                                      parameters replace existing values. Additional templates: %(album)s, %(artist)s. Example: --metadata-from-title "%(artist)s -
                                      %(title)s" matches a title like "Coldplay - Paradise"
->>>>>>> origin/master
     --xattrs                         Write metadata to the video file's xattrs (using dublin core and xdg standards)
-    --fixup POLICY                   Automatically correct known faults of the file. One of never (do nothing), warn (only emit a warning), detect_or_warn(the default; fix file if we can, warn otherwise)
+    --fixup POLICY                   Automatically correct known faults of the file. One of never (do nothing), warn (only emit a warning), detect_or_warn (the default;
+                                     fix file if we can, warn otherwise)
     --prefer-avconv                  Prefer avconv over ffmpeg for running the postprocessors (default)
     --prefer-ffmpeg                  Prefer ffmpeg over avconv for running the postprocessors
     --ffmpeg-location PATH           Location of the ffmpeg/avconv binary; either the path to the binary or its containing directory.

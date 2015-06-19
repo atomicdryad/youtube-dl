@@ -134,6 +134,20 @@ class BBCCoUkIE(InfoExtractor):
             },
             'skip': 'geolocation',
         }, {
+            'url': 'http://www.bbc.co.uk/iplayer/episode/b05zmgwn/royal-academy-summer-exhibition',
+            'info_dict': {
+                'id': 'b05zmgw1',
+                'ext': 'flv',
+                'description': 'Kirsty Wark and Morgan Quaintance visit the Royal Academy as it prepares for its annual artistic extravaganza, meeting people who have come together to make the show unique.',
+                'title': 'Royal Academy Summer Exhibition',
+                'duration': 3540,
+            },
+            'params': {
+                # rtmp download
+                'skip_download': True,
+            },
+            'skip': 'geolocation',
+        }, {
             'url': 'http://www.bbc.co.uk/iplayer/playlist/p01dvks4',
             'only_matching': True,
         }, {
@@ -271,7 +285,7 @@ class BBCCoUkIE(InfoExtractor):
                 programme_id, 'Downloading media selection XML')
         except ExtractorError as ee:
             if isinstance(ee.cause, compat_HTTPError) and ee.cause.code == 403:
-                media_selection = xml.etree.ElementTree.fromstring(ee.cause.read().encode('utf-8'))
+                media_selection = xml.etree.ElementTree.fromstring(ee.cause.read().decode('utf-8'))
             else:
                 raise
 
@@ -366,7 +380,7 @@ class BBCCoUkIE(InfoExtractor):
             formats, subtitles = self._download_media_selector(programme_id)
             title = self._og_search_title(webpage)
             description = self._search_regex(
-                r'<p class="medium-description">([^<]+)</p>',
+                r'<p class="[^"]*medium-description[^"]*">([^<]+)</p>',
                 webpage, 'description', fatal=False)
         else:
             programme_id, title, description, duration, formats, subtitles = self._download_playlist(group_id)

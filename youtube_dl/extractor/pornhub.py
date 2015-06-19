@@ -19,8 +19,8 @@ from ..aes import (
 
 
 class PornHubIE(InfoExtractor):
-    _VALID_URL = r'https?://(?:www\.)?pornhub\.com/view_video\.php\?viewkey=(?P<id>[0-9a-f]+)'
-    _TEST = {
+    _VALID_URL = r'https?://(?:www\.)?pornhub\.com/(?:view_video\.php\?viewkey=|embed/)(?P<id>[0-9a-z]+)'
+    _TESTS = [{
         'url': 'http://www.pornhub.com/view_video.php?viewkey=648719015',
         'md5': '882f488fa1f0026f023f33576004a2ed',
         'info_dict': {
@@ -30,7 +30,17 @@ class PornHubIE(InfoExtractor):
             "title": "Seductive Indian beauty strips down and fingers her pink pussy",
             "age_limit": 18
         }
-    }
+    }, {
+        'url': 'http://www.pornhub.com/view_video.php?viewkey=ph557bbb6676d2d',
+        'only_matching': True,
+    }]
+
+    @classmethod
+    def _extract_url(cls, webpage):
+        mobj = re.search(
+            r'<iframe[^>]+?src=(["\'])(?P<url>(?:https?:)?//(?:www\.)?pornhub\.com/embed/\d+)\1', webpage)
+        if mobj:
+            return mobj.group('url')
 
     def _extract_count(self, pattern, webpage, name):
         return str_to_int(self._search_regex(
@@ -39,7 +49,8 @@ class PornHubIE(InfoExtractor):
     def _real_extract(self, url):
         video_id = self._match_id(url)
 
-        req = compat_urllib_request.Request(url)
+        req = compat_urllib_request.Request(
+            'http://www.pornhub.com/view_video.php?viewkey=%s' % video_id)
         req.add_header('Cookie', 'age_verified=1')
         webpage = self._download_webpage(req, video_id)
 
